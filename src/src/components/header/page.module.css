@@ -1,0 +1,91 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  background-color: #131c2b;
+  color: white;
+  width: 25vh;
+  height: 100vh;
+  text-align: center;
+  padding-top: 15px;
+  gap: 40px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+a.menu {
+  background-color: #131c2b;
+  color: white;
+  height: 100vh;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 50px;
+}
+
+.button {
+  padding: 15px;
+  border: none;
+  /* background-color: rgba(85, 90, 41, 0.5); */
+  background-color: #131c2b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: start;
+  flex: 1;
+}
+
+.button:hover {
+  background-color: #2ea043;
+}
+.profile {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 0 15px;
+  gap: 5px;
+}
+
+.buttonleLogout {
+  padding: 10px;
+  border: none;
+  border-radius: 15px;
+  background-color: #2ea043;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  flex: 1;
+}
+
+.buttonleLogout:hover {
+  background-color: #1e6b2c;
+}
+
+.button {
+  padding: 15px;
+  border: none;
+  /* background-color: rgba(85, 90, 41, 0.5); */
+  background-color: #131c2b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: start;
+  flex: 1;
+}
+
+.button:hover {
+  background-color: #1e6b2c;
+}
+
+.img {
+  object-fit: cover;
+  border-radius: 40px;
+}
+
