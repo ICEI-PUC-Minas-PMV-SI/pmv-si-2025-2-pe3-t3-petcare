@@ -51,7 +51,7 @@ export default function PetsRegister({
       url: base64data,
     };
 
-    if (edit) {
+    if (edit.length > 0) {
       PetRepo.update(edit, data);
     } else {
       PetRepo.create(data);
@@ -100,7 +100,7 @@ export default function PetsRegister({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {edit ? (
+        {edit.length > 0 ? (
           <button className={styles.button} onClick={editButtonClick}>
             Editar
           </button>

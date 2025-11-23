@@ -8,7 +8,7 @@ import styles from "./page.module.css";
 import { User, UserRole } from "@/utils/models";
 
 export default function RegisterPage() {
-  const [selectedRole, setSelectedRole] = useState<UserRole>("guardian");
+  const [selectedRole, setSelectedRole] = useState<UserRole | "">("");
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
@@ -32,7 +32,7 @@ export default function RegisterPage() {
       name: name,
       email: email,
       phone: phone,
-      role: selectedRole,
+      role: selectedRole as UserRole,
       password: password,
     };
 
@@ -41,7 +41,7 @@ export default function RegisterPage() {
     setEmail("");
     setPhone("");
     setPassword("");
-    router.push("/");
+    router.push("/login");
   }
 
   return (
@@ -53,7 +53,7 @@ export default function RegisterPage() {
             selectedRole === "" ? styles.colorDefault : styles.colorValue
           }
           value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
+          onChange={(e) => setSelectedRole(e.target.value as UserRole)}
           name="especie"
           required
         >

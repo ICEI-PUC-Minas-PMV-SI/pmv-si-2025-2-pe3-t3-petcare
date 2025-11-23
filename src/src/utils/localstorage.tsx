@@ -259,6 +259,8 @@ export function seedDemoData(): void {
     petId: pet.id,
     userId: userTutor.id,
     hotelId: hotel.id,
+    hotelName: hotel.name,
+    petName: pet.name,
     checkinDate: "2025-11-10",
     checkoutDate: "2025-11-12",
     notes: "Reserva de demonstração",

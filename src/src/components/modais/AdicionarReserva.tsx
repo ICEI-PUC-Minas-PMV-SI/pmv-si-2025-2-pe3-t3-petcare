@@ -80,6 +80,8 @@ export function AdicionarReservaDialog({
         userId,
         hotelId,
         petId,
+        hotelName: "",
+        petName: "",
         checkinDate: checkIn,
         checkoutDate: checkOut,
         notes,

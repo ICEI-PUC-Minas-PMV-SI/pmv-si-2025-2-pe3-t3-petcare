@@ -2,10 +2,11 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { logout } from "@/lib/auth";
+import { User } from "@/utils/models";
 import styles from "./page.module.css";
 
 export function Header() {
-  const [user, setUser] = useState<object>({});
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function Header() {
           width={80}
           height={80}
         />
-        <h3>{user.name}</h3>
+        <h3>{user && user.name}</h3>
         <button
           onClick={() => handleLogout()}
           className={styles.buttonleLogout}
@@ -46,7 +47,7 @@ export function Header() {
         <button onClick={() => handleClick("/")} className={styles.button}>
           Home
         </button>
-        {user.role === "hotel" && (
+        {user && user.role === "hotel" && (
           <button
             onClick={() => handleClick("/dashboard")}
             className={styles.button}
@@ -54,7 +55,7 @@ export function Header() {
             Dashboard
           </button>
         )}
-        {user.role === "guardian" && (
+        {user && user.role === "guardian" && (
           <button
             onClick={() => handleClick("/pets")}
             className={styles.button}
@@ -62,7 +63,7 @@ export function Header() {
             Animais de estimação
           </button>
         )}
-        {user.role === "hotel" && (
+        {user && user.role === "hotel" && (
           <button
             onClick={() => handleClick("/hotel")}
             className={styles.button}

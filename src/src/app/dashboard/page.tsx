@@ -182,7 +182,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-3">
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as string)}
+            onChange={(e) => setFilterStatus(e.target.value as "ALL")}
             className="rounded-md border px-3 py-2 text-sm"
           >
             <option value="ALL">Todos os status</option>

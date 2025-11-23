@@ -26,20 +26,30 @@ export default function HomePage() {
       <div className={styles.container}>
         <div className={styles.title}>
           <h1>Registro de hotéis</h1>
-          <HotelRegister att={att} setAtt={setAtt} />
+          <HotelRegister att={att} setAtt={setAtt} edit={""} />
         </div>
 
         <div className={styles.containerBox}>
           {hotels.length > 0 &&
             hotels.map((hotel) => (
               <div key={hotel.id} className={styles.box}>
-                <img
-                  className={styles.img}
-                  src={hotel.url}
-                  alt="Sem imagem"
-                  width={200}
-                  height={200}
-                />
+                {hotel.url.length > 0 ? (
+                  <img
+                    className={styles.img}
+                    src={hotel.url}
+                    alt="Sem imagem"
+                    width={200}
+                    height={200}
+                  />
+                ) : (
+                  <img
+                    className={styles.img}
+                    src="img/noImage.jpg"
+                    alt="Sem imagem"
+                    width={200}
+                    height={200}
+                  />
+                )}
                 <div className={styles.content}>
                   <h1>{hotel.name}</h1>
                   <p>{hotel.description}</p>

@@ -27,20 +27,30 @@ export default function HomePage() {
       <div className={styles.container}>
         <div className={styles.title}>
           <h1>Meus animais</h1>
-          <PetsRegister att={att} setAtt={setAtt} />
+          <PetsRegister att={att} setAtt={setAtt} edit={""} />
         </div>
 
         <div className={styles.containerBox}>
           {pets.length > 0 &&
             pets.map((pet) => (
               <div key={pet.id} className={styles.box}>
-                <img
-                  className={styles.img}
-                  src={pet.url}
-                  alt="Sem imagem"
-                  width={200}
-                  height={200}
-                />
+                {pet.url.length > 0 ? (
+                  <img
+                    className={styles.img}
+                    src={pet.url}
+                    alt="Sem imagem"
+                    width={200}
+                    height={200}
+                  />
+                ) : (
+                  <img
+                    className={styles.img}
+                    src="img/noImage.jpg"
+                    alt="Sem imagem"
+                    width={200}
+                    height={200}
+                  />
+                )}
                 <div className={styles.content}>
                   <p>Nome: {pet.name}</p>
                   <p>Espécie: {pet.species}</p>

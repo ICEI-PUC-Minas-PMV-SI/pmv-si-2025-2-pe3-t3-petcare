@@ -50,8 +50,10 @@ export interface Hotel {
 export interface Reservation {
   id: UUID;
   petId: UUID;
+  petName: string;
   userId: UUID;
   hotelId: UUID;
+  hotelName: string;
   checkinDate: string; // YYYY-MM-DD
   checkoutDate: string; // YYYY-MM-DD
   status: ReservationStatus;

@@ -41,7 +41,7 @@ export default function HotelRegister({
       url: base64data,
     };
 
-    if (edit) {
+    if (edit.length > 0) {
       HotelRepo.update(edit, data);
     } else {
       HotelRepo.create(data);
@@ -89,7 +89,7 @@ export default function HotelRegister({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {edit ? (
+        {edit.length > 0 ? (
           <button className={styles.button} onClick={editButtonClick}>
             Editar
           </button>
