@@ -11,8 +11,8 @@ export default function HomePage() {
   const [att, setAtt] = useState<boolean>(false);
 
   useEffect(() => {
-    // const result = localStorage.getItem("auth") ?? "{id: 1}";
-    const stored = PetRepo.list();
+    const result = JSON.parse(localStorage.getItem("auth") || "") ?? "{id: 1}";
+    const stored = PetRepo.list(result.id);
     setPets(stored);
   }, [att]);
 
