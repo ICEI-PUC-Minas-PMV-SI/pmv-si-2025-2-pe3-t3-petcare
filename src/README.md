@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PetCare - Plataforma de Hospedagem para Pets
 
-## Getting Started
+## Acesso à Aplicação
 
-First, run the development server:
+A aplicação está disponível para acesso e teste no seguinte link:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[**https://pet-care-murex.vercel.app/login**](https://pet-care-murex.vercel.app/login)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Funcionalidades Implementadas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Cadastro e Login de Usuários:** Sistema de autenticação com perfis distintos para tutores e administradores de hotéis.
+- **Gestão de Hotéis:** Hotéis podem se cadastrar, editar suas informações e gerenciar as reservas recebidas.
+- **Gestão de Pets:** Tutores podem cadastrar seus animais de estimação, incluindo informações de saúde e registros de vacinação.
+- **Sistema de Reservas:** Tutores podem criar reservas para seus pets nos hotéis cadastrados.
+- **Atualizações da Estadia:** Hotéis podem enviar atualizações em tempo real sobre a estadia do pet, incluindo textos e vídeos.
+- **Sistema de Avaliação:** Tutores podem avaliar os hotéis após a conclusão de uma estadia, promovendo transparência e confiança.
+- **Selo de Verificação:** Hotéis podem receber um selo de "Verificado" para aumentar a confiança dos usuários.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Credenciais de Demonstração
 
-## Learn More
+Para testar a aplicação, você pode usar os seguintes usuários de demonstração. A senha para todos os usuários é `123`.
 
-To learn more about Next.js, take a look at the following resources:
+### Tutores (Guardians)
+- **Email:** `anamartins@e.com`
+- **Email:** `joaosilva@e.com`
+- **Email:** `carlosmenezes@e.com`
+- **Email:** `clararezende@e.com`
+- **Email:** `patriciaoliveira@e.com`
+- **Email:** `geraldofontes@e.com`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Hotéis (Hotels)
+- **Email:** `hotelpetcare@e.com`
+- **Email:** `pousadaamigofiel@e.com`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tecnologias Utilizadas
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework:** [Next.js](https://nextjs.org/)
+- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
+- **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes:** [Shadcn/ui](https://ui.shadcn.com/) e [Radix UI](https://www.radix-ui.com/)
+- **Armazenamento de Dados:** `localStorage` do navegador para simular um banco de dados.
