@@ -82,6 +82,7 @@ export function AdicionarReservaDialog({
         petId,
         hotelName: "",
         petName: "",
+        hasUpdates: false,
         checkinDate: checkIn,
         checkoutDate: checkOut,
         notes,

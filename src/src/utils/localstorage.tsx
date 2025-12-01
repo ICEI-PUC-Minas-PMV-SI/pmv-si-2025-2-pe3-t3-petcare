@@ -138,14 +138,25 @@ export const ReservationRepo = {
   get(id: UUID): Reservation | undefined {
     return this.list().find((r) => r.id === id);
   },
-  create(data: Omit<Reservation, "id" | "createdAt" | "status">): Reservation {
+  create(
+    data: Omit<
+      Reservation,
+      "id" | "createdAt" | "updatedAt" | "rejectionReason" | "status"
+    > & {
+      status?: ReservationStatus;
+    }
+  ): Reservation {
     const reservations = this.list();
+
     const reservation: Reservation = {
       ...data,
       id: uuid(),
-      status: ReservationStatus.PENDING,
+      status: data.status ?? ReservationStatus.PENDING,
+      rejectionReason: null,
+      updatedAt: null,
       createdAt: nowISO(),
     };
+
     reservations.push(reservation);
     saveJSON(reservationsKey, reservations);
     return reservation;
@@ -195,9 +206,15 @@ export const StayUpdateRepo = {
       ? updates.filter((u) => u.reservationId === reservationId)
       : updates;
   },
-  create(data: Omit<StayUpdate, "id" | "createdAt">): StayUpdate {
+  create(
+    data: Omit<StayUpdate, "id" | "createdAt"> & { createdAt?: string }
+  ): StayUpdate {
     const updates = this.list();
-    const update: StayUpdate = { ...data, id: uuid(), createdAt: nowISO() };
+    const update: StayUpdate = {
+      ...data,
+      id: uuid(),
+      createdAt: data.createdAt ?? nowISO(),
+    };
     updates.push(update);
     saveJSON(updatesKey, updates);
     return update;
@@ -222,9 +239,17 @@ export const RatingRepo = {
   get(id: UUID): Rating | undefined {
     return this.list().find((r) => r.id === id);
   },
-  create(data: Omit<Rating, "id" | "createdAt">): Rating {
+  create(
+    data: Omit<Rating, "id" | "createdAt"> & { createdAt?: string }
+  ): Rating {
     const ratings = this.list();
-    const rating: Rating = { ...data, id: uuid(), createdAt: nowISO() };
+
+    const rating: Rating = {
+      ...data,
+      id: uuid(),
+      createdAt: data.createdAt ?? nowISO(),
+    };
+
     ratings.push(rating);
     saveJSON(ratingsKey, ratings);
     return rating;
@@ -246,9 +271,17 @@ export const VaccinationRecordRepo = {
     const records = parseJSON<VaccinationRecord>(vaccinationRecordsKey);
     return petId ? records.filter((r) => r.petId === petId) : records;
   },
-  create(data: Omit<VaccinationRecord, "id" | "createdAt">): VaccinationRecord {
+  create(
+    data: Omit<VaccinationRecord, "id" | "createdAt"> & { createdAt?: string }
+  ): VaccinationRecord {
     const records = this.list();
-    const record: VaccinationRecord = { ...data, id: uuid(), createdAt: nowISO() };
+
+    const record: VaccinationRecord = {
+      ...data,
+      id: uuid(),
+      createdAt: data.createdAt ?? nowISO(),
+    };
+
     records.push(record);
     saveJSON(vaccinationRecordsKey, records);
     return record;
@@ -403,9 +436,11 @@ export function seedDemoData(): void {
     petName: max.name,
     checkinDate: "2025-12-01",
     checkoutDate: "2025-12-05",
+    hasUpdates: false,
     notes: "Max precisa de medicação às 8h e 20h.",
-    status: ReservationStatus.CHECKED_IN,
   });
+
+  ReservationRepo.changeStatus(res1.id, ReservationStatus.CHECKED_IN);
 
   const res2 = ReservationRepo.create({
     petId: luna.id,
@@ -416,6 +451,7 @@ export function seedDemoData(): void {
     checkinDate: "2025-11-15",
     checkoutDate: "2025-11-20",
     notes: "Luna é um pouco tímida no início.",
+    hasUpdates: false,
     status: ReservationStatus.COMPLETED,
   });
 
@@ -428,6 +464,7 @@ export function seedDemoData(): void {
     checkinDate: "2026-01-10",
     checkoutDate: "2026-01-15",
     notes: "Toby adora passear no parque.",
+    hasUpdates: false,
     status: ReservationStatus.PENDING,
   });
 
@@ -436,6 +473,7 @@ export function seedDemoData(): void {
     reservationId: res1.id,
     authorName: hotelUser1.name,
     text: "Max se adaptou super bem! Já fez novos amigos.",
+    videoUrl: '',
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
   });
   StayUpdateRepo.create({

@@ -59,6 +59,7 @@ export interface Reservation {
   checkinDate: string; // YYYY-MM-DD
   checkoutDate: string; // YYYY-MM-DD
   status: ReservationStatus;
+  hasUpdates: boolean;
   notes?: string | null;
   rejectionReason?: string | null;
   createdAt: string;
