@@ -1,18 +1,28 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Header } from "@/components/header/page";
-import { Hotel } from "@/utils/models";
-import { HotelRepo } from "@/utils/localstorage";
+import { Hotel, Rating } from "@/utils/models";
+import { HotelRepo, RatingRepo } from "@/utils/localstorage";
 import styles from "./page.module.css";
 import HotelRegister from "@/components/modais/hotelRegister/page";
+import { BadgeCheck } from "lucide-react";
 
 export default function HomePage() {
-  const [hotels, setHotels] = useState<Array<Hotel>>([]);
+  const [hotels, setHotels] = useState<Array<Hotel & { averageRating?: number }>>([]);
   const [att, setAtt] = useState<boolean>(false);
 
   useEffect(() => {
-    const stored = HotelRepo.list();
-    setHotels(stored);
+    const storedHotels = HotelRepo.list();
+    const allRatings = RatingRepo.list();
+
+    const hotelsWithRatings = storedHotels.map((hotel) => {
+      const hotelRatings = allRatings.filter((rating) => rating.hotelId === hotel.id);
+      const totalRating = hotelRatings.reduce((sum, rating) => sum + rating.rating, 0);
+      const averageRating = hotelRatings.length > 0 ? totalRating / hotelRatings.length : undefined;
+      return { ...hotel, averageRating };
+    });
+
+    setHotels(hotelsWithRatings);
   }, [att]);
 
   function deletButtonClick(id: string) {
@@ -51,8 +61,16 @@ export default function HomePage() {
                   />
                 )}
                 <div className={styles.content}>
-                  <h1>{hotel.name}</h1>
+                  <h1 className="flex items-center gap-2">
+                    {hotel.name}
+                    {hotel.isVerified && (
+                      <BadgeCheck className="text-blue-500" size={18} />
+                    )}
+                  </h1>
                   <p>{hotel.description}</p>
+                  {hotel.averageRating !== undefined && (
+                    <p>Avaliação: {hotel.averageRating.toFixed(1)} / 5</p>
+                  )}
                   <HotelRegister att={att} setAtt={setAtt} edit={hotel.id} />
                   <button
                     onClick={() => deletButtonClick(hotel.id)}

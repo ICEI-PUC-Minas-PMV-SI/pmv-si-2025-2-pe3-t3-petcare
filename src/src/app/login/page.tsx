@@ -23,11 +23,17 @@ export default function LoginPage() {
   function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const email = form.get("email");
-    const password = form.get("password");
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
 
-    if (login(email, password)) {
-      router.push("/");
+    const user = login(email, password);
+
+    if (user) {
+      if (user.role === "hotel") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     } else {
       setError("E-mail ou senha incorretos");
     }

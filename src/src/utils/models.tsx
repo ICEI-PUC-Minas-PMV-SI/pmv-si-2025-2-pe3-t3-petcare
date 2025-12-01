@@ -38,11 +38,13 @@ export interface Pet {
 
 export interface Hotel {
   id: UUID;
+  userId: UUID;
   name: string;
   address?: string | null;
   capacity?: number | null;
   description: string;
   url: string;
+  isVerified?: boolean;
   createdAt: string;
   updatedAt?: string | null;
 }
@@ -68,5 +70,25 @@ export interface StayUpdate {
   reservationId: UUID;
   authorName?: string | null;
   text?: string | null;
+  videoUrl?: string | null;
+  createdAt: string;
+}
+
+export interface Rating {
+  id: UUID;
+  reservationId: UUID;
+  userId: UUID;
+  hotelId: UUID;
+  rating: number; // 1-5
+  comment?: string | null;
+  createdAt: string;
+}
+
+export interface VaccinationRecord {
+  id: UUID;
+  petId: UUID;
+  vaccineName: string;
+  dateAdministered: string; // YYYY-MM-DD
+  nextDueDate?: string | null; // YYYY-MM-DD
   createdAt: string;
 }

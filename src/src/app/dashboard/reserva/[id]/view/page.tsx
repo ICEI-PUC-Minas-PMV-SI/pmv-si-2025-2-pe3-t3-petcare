@@ -15,19 +15,26 @@ import {
   PetRepo,
   UserRepo,
   HotelRepo,
+  StayUpdateRepo,
+  VaccinationRecordRepo,
 } from "utils/localstorage";
-import { Reservation, ReservationStatus } from "utils/models";
+import {
+  Reservation,
+  ReservationStatus,
+  StayUpdate,
+  VaccinationRecord,
+} from "utils/models";
 
 /** Meta visual para status */
 const STATUS_META: Record<ReservationStatus, { label: string; badge: string }> =
-  {
-    PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
-    APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
-    REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
-    CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
-    COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
-    CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
-  };
+{
+  PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
+  APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
+  REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
+  CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
+  COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
+  CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
+};
 
 export default function ReservaPageViewOnly() {
   const params = useParams() as { id?: string };
@@ -42,6 +49,10 @@ export default function ReservaPageViewOnly() {
   const [tutorName, setTutorName] = React.useState<string>("—");
   const [hotelName, setHotelName] = React.useState<string>("—");
   const [error, setError] = React.useState<string | null>(null);
+  const [stayUpdates, setStayUpdates] = React.useState<StayUpdate[]>([]);
+  const [vaccinationRecords, setVaccinationRecords] = React.useState<
+    VaccinationRecord[]
+  >([]);
 
   React.useEffect(() => {
     if (!id) {
@@ -65,6 +76,11 @@ export default function ReservaPageViewOnly() {
       setPetName(pet?.name ?? "—");
       setTutorName(tutor?.name ?? "—");
       setHotelName(hotel?.name ?? "—");
+
+      setStayUpdates(StayUpdateRepo.list(id));
+      if (pet) {
+        setVaccinationRecords(VaccinationRecordRepo.list(pet.id));
+      }
     } catch (err) {
       console.error(err);
       setError("Erro ao carregar a reserva.");
@@ -117,7 +133,7 @@ export default function ReservaPageViewOnly() {
 
         <div>
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.back()}
             className="px-3 py-2 rounded-md border text-sm hover:bg-slate-50"
           >
             Voltar
@@ -185,6 +201,67 @@ export default function ReservaPageViewOnly() {
           <div className="text-xs text-slate-400">Status: {meta.label}</div>
         </CardFooter>
       </Card>
+
+      {/* Vaccination Records Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Registros de Vacinação do Pet
+        </h2>
+        {vaccinationRecords.length === 0 ? (
+          <div className="text-sm text-slate-500">
+            Nenhum registro de vacinação encontrado para este pet.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {vaccinationRecords.map((record) => (
+              <Card key={record.id} className="p-4">
+                <p className="font-semibold">{record.vaccineName}</p>
+                <p className="text-sm text-slate-600">
+                  Aplicada em: {record.dateAdministered}
+                </p>
+                {record.nextDueDate && (
+                  <p className="text-xs text-slate-500">
+                    Próxima dose: {record.nextDueDate}
+                  </p>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Stay Updates Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Atualizações da Estadia</h2>
+        {stayUpdates.length === 0 ? (
+          <div className="text-sm text-slate-500">
+            Nenhuma atualização para esta estadia.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {stayUpdates.map((update) => (
+              <Card key={update.id} className="p-4">
+                <p className="text-sm text-slate-700">{update.text}</p>
+                {update.videoUrl && (
+                  <div className="mt-2">
+                    <video
+                      controls
+                      className="w-full max-h-64 object-cover rounded-md"
+                    >
+                      <source src={update.videoUrl} type="video/mp4" />
+                      Seu navegador não suporta a tag de vídeo.
+                    </video>
+                  </div>
+                )}
+                <p className="text-xs text-slate-400 mt-2">
+                  Por {update.authorName} em{" "}
+                  {new Date(update.createdAt).toLocaleDateString("pt-BR")}
+                </p>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

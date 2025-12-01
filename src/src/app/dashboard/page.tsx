@@ -15,23 +15,24 @@ import {
   HotelRepo,
   UserRepo,
 } from "utils/localstorage";
-import { Hotel, Reservation, ReservationStatus } from "utils/models";
+import { Hotel, Reservation, ReservationStatus, User } from "utils/models";
 import { useRouter } from "next/navigation";
 import { AdicionarReservaDialog } from "@/components/modais/AdicionarReserva";
 
 /** Mapeamento de status para rótulos e classes de badge */
 const STATUS_META: Record<ReservationStatus, { label: string; badge: string }> =
-  {
-    PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
-    APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
-    REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
-    CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
-    COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
-    CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
-  };
+{
+  PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
+  APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
+  REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
+  CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
+  COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
+  CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
+};
 
 type ReservationView = Reservation & {
   petName?: string;
+  petSpecies?: string;
   userName?: string;
 };
 
@@ -55,6 +56,7 @@ export default function Dashboard() {
         return {
           ...reserva,
           petName: pet?.name ?? "—",
+          petSpecies: pet?.species ?? "—",
           userName: user?.name ?? "—",
         };
       });
@@ -63,9 +65,19 @@ export default function Dashboard() {
   );
 
   const updateData = React.useCallback(() => {
-    const hotels = HotelRepo.list();
-    const hotelSelecionado = hotels[0] ?? null;
-    setHotel(hotelSelecionado);
+    const authRaw = localStorage.getItem("auth") ?? "{}";
+    const currentUser: User | null = JSON.parse(authRaw);
+
+    if (!currentUser || currentUser.role !== "hotel") {
+      setHotel(null);
+      setReservas([]);
+      return;
+    }
+
+    const hotelSelecionado = HotelRepo.list().find(
+      (h) => h.userId === currentUser.id,
+    );
+    setHotel(hotelSelecionado ?? null);
 
     if (!hotelSelecionado) {
       setReservas([]);
@@ -231,9 +243,14 @@ export default function Dashboard() {
                 <CardHeader className="px-5 py-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <CardTitle className="text-lg">{r.petName}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {r.petName}{" "}
+                        <span className="text-sm font-normal text-slate-500">
+                          ({r.petSpecies})
+                        </span>
+                      </CardTitle>
                       <CardDescription className="text-xs text-slate-500">
-                        Usuário:{" "}
+                        Tutor:{" "}
                         <span className="font-medium text-slate-700">
                           {r.userName}
                         </span>

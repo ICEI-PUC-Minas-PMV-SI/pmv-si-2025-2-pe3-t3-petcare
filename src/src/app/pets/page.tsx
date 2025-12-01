@@ -5,6 +5,7 @@ import { PetRepo } from "@/utils/localstorage";
 import { Pet } from "@/utils/models";
 import styles from "./page.module.css";
 import PetsRegister from "@/components/modais/petsRegister/page";
+import { VaccinationRecordModal } from "@/components/modais/VaccinationRecordModal";
 
 export default function HomePage() {
   const [pets, setPets] = useState<Array<Pet>>([]);
@@ -56,6 +57,14 @@ export default function HomePage() {
                   <p>Espécie: {pet.species}</p>
                   <p>Idade: {pet.age}</p>
                   <p>Descrição: {pet.obs}</p>
+                  <VaccinationRecordModal
+                    pet={pet}
+                    trigger={
+                      <button className={styles.button}>
+                        Registros de Saúde
+                      </button>
+                    }
+                  />
                   <PetsRegister att={att} setAtt={setAtt} edit={pet.id} />
                   <button
                     onClick={() => deletButtonClick(pet.id)}

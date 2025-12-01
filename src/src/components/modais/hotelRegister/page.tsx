@@ -1,6 +1,6 @@
 "use client";
 import { IoMdAdd } from "react-icons/io";
-import { useState, useRef, Dispatch, SetStateAction } from "react";
+import { useState, useRef, Dispatch, SetStateAction, useEffect } from "react";
 import {
   Dialog,
   DialogClose,
@@ -30,15 +30,27 @@ export default function HotelRegister({
   const [name, setName] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) {
+      const authRaw = localStorage.getItem("auth") ?? "{}";
+      const currentUser = JSON.parse(authRaw);
+      setUserId(currentUser?.id ?? "");
+    }
+  }, [open]);
 
   function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = {
+      userId,
       name,
       address,
       description,
       url: base64data,
+      isVerified,
     };
 
     if (edit.length > 0) {
@@ -83,6 +95,7 @@ export default function HotelRegister({
       setDescription(hotel.description);
       setFileUrl(hotel.url);
       setBase64data(hotel.url);
+      setIsVerified(hotel.isVerified ?? false);
     }
   }
 
@@ -160,6 +173,18 @@ export default function HotelRegister({
                 onChange={(e) => setDescription(e.target.value)}
                 required
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isVerified"
+                checked={isVerified}
+                onChange={(e) => setIsVerified(e.target.checked)}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
+              <label htmlFor="isVerified" className="text-sm font-medium">
+                Hotel Verificado
+              </label>
             </div>
           </div>
           <DialogFooter>

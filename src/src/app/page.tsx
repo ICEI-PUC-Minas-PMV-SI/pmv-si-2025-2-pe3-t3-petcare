@@ -10,6 +10,7 @@ import {
   HotelRepo,
   ReservationRepo,
   seedDemoData,
+  StayUpdateRepo,
 } from "utils/localstorage";
 
 import {
@@ -22,8 +23,11 @@ import {
 } from "@/components/ui/card";
 
 import { useRouter } from "next/navigation";
-import { Hotel, Pet, Reservation } from "@/utils/models";
+import { Hotel, Pet, Reservation, StayUpdate } from "@/utils/models";
 import { AdicionarReservaDialog } from "@/components/modais/AdicionarReserva";
+import { AvaliarHotelDialog } from "@/components/modais/AvaliarHotel";
+import { ReservationStatus } from "@/utils/models";
+import { BadgeCheck } from "lucide-react";
 
 export default function HomePage() {
   const [userId, setUserId] = React.useState<string | null>(null);
@@ -40,10 +44,13 @@ export default function HomePage() {
       const enriched = my.map((r) => {
         const pet = PetRepo.get(r.petId);
         const hotel = HotelRepo.get(r.hotelId);
+        const updates = StayUpdateRepo.list(r.id);
         return {
           ...r,
           petName: pet?.name ?? "—",
+          petSpecies: pet?.species ?? "—",
           hotelName: hotel?.name ?? "—",
+          hasUpdates: updates.length > 0,
         };
       });
       setReservas(enriched);
@@ -192,6 +199,27 @@ export default function HomePage() {
                           >
                             Ver
                           </button>
+                          {r.hasUpdates && (
+                            <button
+                              className="text-xs px-3 py-1 rounded-md border bg-purple-100 hover:bg-purple-200"
+                              onClick={() =>
+                                Router.push(`dashboard/reserva/${r.id}/view`)
+                              }
+                            >
+                              Ver Atualizações
+                            </button>
+                          )}
+                          {r.status === ReservationStatus.COMPLETED && (
+                            <AvaliarHotelDialog
+                              reservation={r}
+                              trigger={
+                                <button className="text-xs px-3 py-1 rounded-md border bg-blue-100 hover:bg-blue-200">
+                                  Avaliar
+                                </button>
+                              }
+                              onSubmitted={() => updateReservas(userId ?? "")}
+                            />
+                          )}
                         </div>
                       </CardFooter>
                     </Card>
@@ -209,7 +237,12 @@ export default function HomePage() {
                 <Card key={h.id} className="pb-0">
                   <CardHeader className="px-5 py-4">
                     <div className="flex justify-between items-center">
-                      <CardTitle>{h.name}</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        {h.name}
+                        {h.isVerified && (
+                          <BadgeCheck className="text-blue-500" size={18} />
+                        )}
+                      </CardTitle>
                     </div>
                     <CardDescription>
                       {h.address ?? "Endereço não informado"}

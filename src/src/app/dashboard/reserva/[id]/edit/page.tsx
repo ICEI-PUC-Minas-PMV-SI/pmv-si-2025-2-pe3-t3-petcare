@@ -15,18 +15,19 @@ import {
   PetRepo,
   UserRepo,
   HotelRepo,
+  StayUpdateRepo,
 } from "utils/localstorage";
-import { Reservation, ReservationStatus } from "utils/models";
+import { Reservation, ReservationStatus, StayUpdate } from "utils/models";
 
 const STATUS_META: Record<ReservationStatus, { label: string; badge: string }> =
-  {
-    PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
-    APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
-    REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
-    CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
-    COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
-    CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
-  };
+{
+  PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
+  APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
+  REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
+  CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
+  COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
+  CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
+};
 
 export default function ReservaPageClient() {
   const params = useParams() as { id?: string };
@@ -42,8 +43,19 @@ export default function ReservaPageClient() {
   const [hotelName, setHotelName] = React.useState<string>("—");
   const [error, setError] = React.useState<string | null>(null);
   const [changing, setChanging] = React.useState(false);
+  const [stayUpdates, setStayUpdates] = React.useState<StayUpdate[]>([]);
+  const [showAddUpdateModal, setShowAddUpdateModal] = React.useState(false);
+  const [newUpdateText, setNewUpdateText] = React.useState("");
+  const [newUpdateVideoUrl, setNewUpdateVideoUrl] = React.useState("");
+  const [addingUpdate, setAddingUpdate] = React.useState(false);
+
+  const currentUserId = React.useRef<string | null>(null);
 
   React.useEffect(() => {
+    const authRaw = localStorage.getItem("auth") ?? "{}";
+    const authObj = JSON.parse(authRaw);
+    currentUserId.current = authObj?.id || authObj?.userId || authObj?.uid || authObj?.user?.id;
+
     if (!id) {
       setError("ID da reserva não informado na rota.");
       setLoading(false);
@@ -65,6 +77,8 @@ export default function ReservaPageClient() {
       setPetName(pet?.name ?? "—");
       setTutorName(tutor?.name ?? "—");
       setHotelName(hotel?.name ?? "—");
+
+      setStayUpdates(StayUpdateRepo.list(id));
     } catch (err) {
       console.error(err);
       setError("Erro ao carregar a reserva.");
@@ -72,6 +86,28 @@ export default function ReservaPageClient() {
       setLoading(false);
     }
   }, [id]);
+
+  function handleAddUpdate() {
+    if (!reservation || !currentUserId.current) return;
+    setAddingUpdate(true);
+    try {
+      StayUpdateRepo.create({
+        reservationId: reservation.id,
+        authorName: UserRepo.get(currentUserId.current)?.name ?? "Hotel",
+        text: newUpdateText,
+        videoUrl: newUpdateVideoUrl || null,
+      });
+      setStayUpdates(StayUpdateRepo.list(reservation.id));
+      setNewUpdateText("");
+      setNewUpdateVideoUrl("");
+      setShowAddUpdateModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao adicionar atualização.");
+    } finally {
+      setAddingUpdate(false);
+    }
+  }
 
   function handleDelete() {
     if (!reservation) return;
@@ -249,6 +285,108 @@ export default function ReservaPageClient() {
           </div>
         </CardFooter>
       </Card>
+
+      {/* Stay Updates Section */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Atualizações da Estadia</h2>
+          <button
+            onClick={() => setShowAddUpdateModal(true)}
+            className="px-3 py-2 rounded-md border text-sm bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Adicionar Atualização
+          </button>
+        </div>
+
+        {stayUpdates.length === 0 ? (
+          <div className="text-sm text-slate-500">
+            Nenhuma atualização para esta estadia.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {stayUpdates.map((update) => (
+              <Card key={update.id} className="p-4">
+                <p className="text-sm text-slate-700">{update.text}</p>
+                {update.videoUrl && (
+                  <div className="mt-2">
+                    <a
+                      href={update.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline text-sm"
+                    >
+                      Ver Vídeo
+                    </a>
+                  </div>
+                )}
+                <p className="text-xs text-slate-400 mt-2">
+                  Por {update.authorName} em{" "}
+                  {new Date(update.createdAt).toLocaleDateString("pt-BR")}
+                </p>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Add Update Modal */}
+      {showAddUpdateModal && (
+        <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Adicionar Nova Atualização
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="updateText"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Texto da Atualização
+                </label>
+                <textarea
+                  id="updateText"
+                  value={newUpdateText}
+                  onChange={(e) => setNewUpdateText(e.target.value)}
+                  rows={3}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="videoUrl"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  URL do Vídeo (opcional)
+                </label>
+                <input
+                  type="url"
+                  id="videoUrl"
+                  value={newUpdateVideoUrl}
+                  onChange={(e) => setNewUpdateVideoUrl(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  placeholder="https://exemplo.com/video.mp4"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddUpdateModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleAddUpdate}
+                disabled={addingUpdate || !newUpdateText.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {addingUpdate ? "Adicionando..." : "Adicionar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

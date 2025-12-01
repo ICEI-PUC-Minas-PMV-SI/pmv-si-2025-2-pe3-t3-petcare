@@ -44,9 +44,11 @@ export function Header() {
         </button>
       </div>
       <div className={styles.container}>
-        <button onClick={() => handleClick("/")} className={styles.button}>
-          Home
-        </button>
+        {user && user.role === "guardian" && (
+          <button onClick={() => handleClick("/")} className={styles.button}>
+            Home
+          </button>
+        )}
         {user && user.role === "hotel" && (
           <button
             onClick={() => handleClick("/dashboard")}
