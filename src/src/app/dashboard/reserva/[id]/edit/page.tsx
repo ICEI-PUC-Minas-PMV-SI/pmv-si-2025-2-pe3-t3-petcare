@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
+import ReactPlayer from 'react-player';
 import {
   Card,
   CardContent,
@@ -309,14 +310,13 @@ export default function ReservaPageClient() {
                 <p className="text-sm text-slate-700">{update.text}</p>
                 {update.videoUrl && (
                   <div className="mt-2">
-                    <a
-                      href={update.videoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline text-sm"
-                    >
-                      Ver Vídeo
-                    </a>
+                    <ReactPlayer
+                      src={update.videoUrl}
+                      controls
+                      className="w-full max-h-64 object-cover rounded-md"
+                      width="%100"
+                      height="500px"
+                    />
                   </div>
                 )}
                 <p className="text-xs text-slate-400 mt-2">
