@@ -25,57 +25,90 @@ export default function HomePage() {
   return (
     <div className="page">
       <Header />
-      <div className={styles.container}>
-        <div className={styles.title}>
-          <h1>Meus animais</h1>
-          <PetsRegister att={att} setAtt={setAtt} edit={""} />
+      <div className={styles.pageWrapper}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.title}>Meus animais</h1>
+            <p className={styles.subtitle}>Gerencie todos os seus pets cadastrados aqui.</p>
+          </div>
+          <PetsRegister att={att} setAtt={setAtt} edit={""} triggerLabel="Adicionar Pet" />
         </div>
 
-        <div className={styles.containerBox}>
-          {pets.length > 0 &&
-            pets.map((pet) => (
-              <div key={pet.id} className={styles.box}>
-                {pet.url.length > 0 ? (
-                  <img
-                    className={styles.img}
-                    src={pet.url}
-                    alt="Sem imagem"
-                    width={200}
-                    height={200}
-                  />
-                ) : (
-                  <img
-                    className={styles.img}
-                    src="img/noImage.jpg"
-                    alt="Sem imagem"
-                    width={200}
-                    height={200}
-                  />
-                )}
-                <div className={styles.content}>
-                  <p>Nome: {pet.name}</p>
-                  <p>Espécie: {pet.species}</p>
-                  <p>Idade: {pet.age}</p>
-                  <p>Descrição: {pet.obs}</p>
-                  <VaccinationRecordModal
-                    pet={pet}
-                    trigger={
-                      <button className={styles.button}>
-                        Registros de Saúde
+        <section className={styles.section}>
+          <div className={styles.grid}>
+            {pets.length > 0 ? (
+              pets.map((pet) => (
+                <div key={pet.id} className="card">
+                  <div className="card-header">
+                    <div>
+                      <h3 className="card-title">{pet.name}</h3>
+                      <p className="card-description">{pet.species}</p>
+                    </div>
+                    {pet.url && (
+                      <img
+                        className="h-16 w-16 rounded-full object-cover"
+                        src={pet.url}
+                        alt={`Foto de ${pet.name}`}
+                      />
+                    )}
+                  </div>
+                  <div className="card-content">
+                    <div className="card-notes">
+                      <div className="card-notes-label">Idade</div>
+                      <div className="card-notes-text">{pet.age} anos</div>
+                    </div>
+                    <div className="card-notes mt-4">
+                      <div className="card-notes-label">Observações</div>
+                      <div className="card-notes-text">{pet.obs}</div>
+                    </div>
+                  </div>
+                  <div className="card-footer card-footer-between">
+                    <VaccinationRecordModal
+                      pet={pet}
+                      trigger={
+                        <button className="card-button">
+                          Ver Saúde
+                        </button>
+                      }
+                    />
+                    <div className="card-actions">
+                      <PetsRegister
+                        att={att}
+                        setAtt={setAtt}
+                        edit={pet.id}
+                        triggerLabel="Editar"
+                      />
+                      <button
+                        onClick={() => deletButtonClick(pet.id)}
+                        className="card-button card-button-delete"
+                      >
+                        Excluir
                       </button>
-                    }
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyState}>
+                <h3 className={styles.emptyStateTitle}>
+                  Você ainda não adicionou nem um pet!
+                </h3>
+                <p className={styles.emptyStateText}>
+                  Clique no botão cadastrar para adicionar seu primerio pet.
+                </p>
+                <div className={styles.emptyStateAction}>
+                  <PetsRegister
+                    att={att}
+                    setAtt={setAtt}
+                    edit=""
+                    triggerLabel="Adicionar"
                   />
-                  <PetsRegister att={att} setAtt={setAtt} edit={pet.id} />
-                  <button
-                    onClick={() => deletButtonClick(pet.id)}
-                    className={styles.button}
-                  >
-                    Excluir
-                  </button>
+
                 </div>
               </div>
-            ))}
-        </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

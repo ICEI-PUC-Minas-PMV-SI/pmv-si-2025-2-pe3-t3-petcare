@@ -10,8 +10,22 @@ export function Header() {
   const router = useRouter();
 
   useEffect(() => {
-    const result = localStorage.getItem("auth") ?? "{}";
-    setUser(JSON.parse(result));
+    const loadUser = () => {
+      const result = localStorage.getItem("auth") ?? "{}";
+      setUser(JSON.parse(result));
+    };
+
+    loadUser(); // Carrega o usuário inicialmente
+
+    const handleProfileUpdate = () => {
+      loadUser(); // Recarrega o usuário quando o evento é disparado
+    };
+
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+    };
   }, []);
 
   function handleClick(link: string) {
@@ -30,8 +44,8 @@ export function Header() {
       <div className={styles.profile}>
         <img
           className={styles.img}
-          src="img/noImage.jpg"
-          alt="Sem imagem"
+          src={user?.avatarUrl || "/img/noImage.jpg"}
+          alt="Avatar do usuário"
           width={80}
           height={80}
         />
@@ -57,7 +71,7 @@ export function Header() {
             Dashboard
           </button>
         )}
-        {user && user.role === "guardian" && (
+        {user && user.role == "guardian" && (
           <button
             onClick={() => handleClick("/pets")}
             className={styles.button}
@@ -65,7 +79,7 @@ export function Header() {
             Animais de estimação
           </button>
         )}
-        {user && user.role === "hotel" && (
+        {user && user.role === "admin" && (
           <button
             onClick={() => handleClick("/hotel")}
             className={styles.button}
@@ -73,6 +87,12 @@ export function Header() {
             Hotéis
           </button>
         )}
+        <button
+          onClick={() => handleClick("/account")}
+          className={styles.button}
+        >
+          Conta
+        </button>
       </div>
     </header>
   );

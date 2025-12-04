@@ -9,21 +9,12 @@ import {
   PetRepo,
   HotelRepo,
   ReservationRepo,
-  seedDemoData,
   StayUpdateRepo,
+  RatingRepo,
 } from "utils/localstorage";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-
 import { useRouter } from "next/navigation";
-import { Hotel, Pet, Reservation, StayUpdate } from "@/utils/models";
+import { Hotel, Pet, Reservation } from "@/utils/models";
 import { AdicionarReservaDialog } from "@/components/modais/AdicionarReserva";
 import { AvaliarHotelDialog } from "@/components/modais/AvaliarHotel";
 import { ReservationStatus } from "@/utils/models";
@@ -33,7 +24,6 @@ export default function HomePage() {
   const [userId, setUserId] = React.useState<string | null>(null);
   const [reservas, setReservas] = React.useState<Reservation[]>([]);
   const [hotels, setHotels] = React.useState<Hotel[]>([]);
-  const [pets, setPets] = React.useState<Pet[]>([]);
   const Router = useRouter();
 
   const carouselRef = React.useRef<HTMLDivElement | null>(null);
@@ -41,16 +31,21 @@ export default function HomePage() {
   function updateReservas(finalUserId: string) {
     if (finalUserId) {
       const my = ReservationRepo.list().filter((r) => r.userId === finalUserId);
+      const allRatings = RatingRepo.list(); // Carrega todas as avaliações uma vez
+
       const enriched = my.map((r) => {
         const pet = PetRepo.get(r.petId);
         const hotel = HotelRepo.get(r.hotelId);
         const updates = StayUpdateRepo.list(r.id);
+        const isRated = allRatings.some(rating => rating.reservationId === r.id); // Verifica se já foi avaliado
+
         return {
           ...r,
           petName: pet?.name ?? "—",
           petSpecies: pet?.species ?? "—",
           hotelName: hotel?.name ?? "—",
           hasUpdates: updates.length > 0,
+          isRated: isRated, // Adiciona a flag
         };
       });
       setReservas(enriched);
@@ -73,8 +68,6 @@ export default function HomePage() {
 
     // carregar listas auxiliares
     setHotels(HotelRepo.list());
-    setPets(PetRepo.list(finalUserId ?? undefined));
-
     updateReservas(finalUserId);
   }, []);
 
@@ -82,196 +75,156 @@ export default function HomePage() {
     <div className="page">
       <Header />
 
-      <div className={styles.container}>
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div className="flex items-start gap-4">
-              <div className="flex flex-col">
-                <h1 className="text-3xl font-semibold leading-tight">
-                  Bem vindo!
-                </h1>
-                <p className="text-sm text-slate-500"></p>
-              </div>
-            </div>
+      <div className={styles.pageWrapper}>
+        {/* Header */}
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.title}>
+              Bem vindo!
+            </h1>
+            <p className={styles.subtitle}></p>
           </div>
+        </div>
 
-          {/* Carousel */}
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-medium">Suas reservas</h2>
-            </div>
+        {/* Carousel */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Suas reservas</h2>
 
-            <div
-              ref={carouselRef}
-              className="flex gap-4 overflow-x-auto no-scrollbar py-2"
-              style={{ scrollSnapType: "x mandatory", paddingBottom: 6 }}
-            >
-              {reservas.length === 0 ? (
-                <div className="min-w-[320px]">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Nenhuma reserva</CardTitle>
-                      <CardDescription>
-                        Você não possui reservas no momento.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600">
-                        Consulte hotéis para criar sua primeira reserva.
-                      </p>
-                    </CardContent>
-                  </Card>
+          <div ref={carouselRef} className={styles.carousel}>
+            {reservas.length === 0 ? (
+              <div className={styles.carouselItem}>
+                <div className="card">
+                  <div className="card-header">
+                    <h3 className="card-title">Nenhuma reserva</h3>
+                  </div>
+                  <div className="card-content">
+                    <p>
+                      Você não possui reservas no momento. Consulte hotéis para criar sua primeira reserva.
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                reservas.map((r) => (
-                  <div
-                    key={r.id}
-                    className="min-w-[320px] flex-shrink-0"
-                    style={{ scrollSnapAlign: "start" }}
-                  >
-                    <Card key={r.id} className="pb-0">
-                      <CardHeader className="px-5 py-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <CardTitle className="text-lg">
-                              Pet:
-                              <span> {r.petName}</span>
-                            </CardTitle>
-                            <CardDescription className="text-xs text-slate-500">
-                              Hotel:
-                              <span className="font-medium text-slate-700">
-                                {r.hotelName}
-                              </span>
-                            </CardDescription>
-                          </div>
+              </div>
+            ) : (
+              reservas.map((r) => (
+                <div key={r.id} className={styles.carouselItem}>
+                  <div className="card">
+                    <div className="card-header">
+                      <div>
+                        <h3 className="card-title">
+                          Pet: <span>{r.petName}</span>
+                        </h3>
+                        <p className="card-description">
+                          Hotel:
+                          <span className="font-medium text-slate-700">
+                            {r.hotelName}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="card-date">
+                          {new Date(r.createdAt).toLocaleDateString("pt-BR")}
+                        </span>
+                      </div>
+                    </div>
 
-                          <div className="flex flex-col items-end gap-2">
-                            <span className="text-xs text-slate-400">
-                              {new Date(r.createdAt).toLocaleDateString(
-                                "pt-BR",
-                              )}
-                            </span>
-                          </div>
+                    <div className="card-content">
+                      <div className="card-checkin-out">
+                        <div>
+                          <div className="card-checkin-out-label">Check-in</div>
+                          <div className="card-checkin-out-value">{r.checkinDate}</div>
                         </div>
-                      </CardHeader>
-
-                      <CardContent className="px-5 pb-4 pt-1 text-sm text-slate-700">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <div className="text-xs text-slate-400">
-                              Check-in
-                            </div>
-                            <div className="font-medium">{r.checkinDate}</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-slate-400">
-                              Check-out
-                            </div>
-                            <div className="font-medium">{r.checkoutDate}</div>
-                          </div>
+                        <div>
+                          <div className="card-checkin-out-label">Check-out</div>
+                          <div className="card-checkin-out-value">{r.checkoutDate}</div>
                         </div>
+                      </div>
 
-                        {r.notes ? (
-                          <div className="text-sm text-slate-600 border-t pt-3">
-                            <div className="text-xs text-slate-400">
-                              Observações
-                            </div>
-                            <div className="mt-1">{r.notes}</div>
-                          </div>
-                        ) : (
-                          <div className="text-sm text-slate-400 border-t pt-3">
-                            Sem observações.
-                          </div>
-                        )}
-                      </CardContent>
-
-                      <CardFooter className="px-5 py-3 bg-slate-50 flex items-center justify-between">
-                        <div className="text-xs text-slate-500">
-                          ID: {r.id.slice(0, 6)}...
+                      {r.notes ? (
+                        <div className="card-notes">
+                          <div className="card-notes-label">Observações</div>
+                          <div className="card-notes-text">{r.notes}</div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="text-xs px-3 py-1 rounded-md border hover:bg-white/50"
-                            onClick={() =>
-                              Router.push(`dashboard/reserva/${r.id}/view`)
-                            }
-                          >
-                            Ver
-                          </button>
-                          {r.hasUpdates && (
-                            <button
-                              className="text-xs px-3 py-1 rounded-md border bg-purple-100 hover:bg-purple-200"
-                              onClick={() =>
-                                Router.push(`dashboard/reserva/${r.id}/view`)
-                              }
-                            >
-                              Ver Atualizações
+                      ) : (
+                        <div className="card-notes-empty">
+                          Sem observações.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="card-footer card-footer-between">
+                      <div className="card-id">
+                        ID: {r.id.slice(0, 6)}...
+                      </div>
+                      <div className="card-actions">
+                        <button
+                          className="card-button"
+                          onClick={() =>
+                            Router.push(`dashboard/reserva/${r.id}/view`)
+                          }
+                        >
+                          Ver
+                        </button>
+                        {r.status === ReservationStatus.COMPLETED && (
+                          r.isRated ? (
+                            <button className="card-button" disabled>
+                              Avaliado
                             </button>
-                          )}
-                          {r.status === ReservationStatus.COMPLETED && (
+                          ) : (
                             <AvaliarHotelDialog
                               reservation={r}
                               trigger={
-                                <button className="text-xs px-3 py-1 rounded-md border bg-blue-100 hover:bg-blue-200">
+                                <button className="card-button">
                                   Avaliar
                                 </button>
                               }
                               onSubmitted={() => updateReservas(userId ?? "")}
                             />
-                          )}
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
-          {/* Lista de hotéis para permitir reservas (call-to-action visual) */}
-          <section>
-            <h2 className="text-lg font-medium mb-4">Hotéis disponíveis</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {hotels.map((h) => (
-                <Card key={h.id} className="pb-0">
-                  <CardHeader className="px-5 py-4">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="flex items-center gap-2">
-                        {h.name}
-                        {h.isVerified && (
-                          <BadgeCheck className="text-blue-500" size={18} />
+                          )
                         )}
-                      </CardTitle>
-                    </div>
-                    <CardDescription>
-                      {h.address ?? "Endereço não informado"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="px-5 pb-4 pt-1 text-sm text-slate-700">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <div className="text-xs text-slate-400">Capacidade</div>
-                        <div className="font-medium">{h.capacity}</div>
                       </div>
                     </div>
-                  </CardContent>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
-                  <CardFooter className="px-5 py-3  bg-slate-50 flex items-center justify-end">
-                    <div className="flex items-center gap-2">
-                      <AdicionarReservaDialog
-                        hotelId={h.id}
-                        userId={userId ?? ""}
-                        onSaved={() => updateReservas(userId ?? "")}
-                        triggerLabel="Fazer Reserva"
-                      />
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </section>
-        </div>
+        {/* Hotel List */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Hotéis disponíveis</h2>
+          <div className={styles.grid}>
+            {hotels.map((h) => (
+              <div key={h.id} className="card">
+                <div className="card-header">
+                  <h3 className="card-title flex items-center gap-2">
+                    {h.isVerified && (
+                      <BadgeCheck className="text-blue-500" size={18} />
+                    )}
+                    {h.name}
+                  </h3>
+                </div>
+                <div className="card-content">
+                  <p className="card-description">
+                    {h.address ?? "Endereço não informado"}
+                  </p>
+                  <div className="mt-2">
+                    <div className="card-checkin-out-label">Capacidade</div>
+                    <div className="card-checkin-out-value">{h.capacity}</div>
+                  </div>
+                </div>
+                <div className="card-footer card-footer-end">
+                  <AdicionarReservaDialog
+                    hotelId={h.id}
+                    userId={userId ?? ""}
+                    onSaved={() => updateReservas(userId ?? "")}
+                    triggerLabel="Fazer Reserva"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -1,68 +1,63 @@
-.container {
+/* src/app/pets/page.module.css */
+/* Empty State */
+.emptyState {
+  border-radius: 0.5rem; /* rounded-lg */
+  border-style: dashed;
+  border-width: 2px;
+  width: 100%;
+  border-color: rgb(241 245 249); /* border-slate-100 */
+  padding: 3rem;
+  text-align: center;
+}
+
+.emptyStateTitle {
+  font-size: 1.125rem; /* text-lg */
+  line-height: 1.75rem;
+  font-weight: 600; /* font-semibold */
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateText {
+  font-size: 0.875rem; /* sm */
+  line-height: 1.25rem;
+  color: rgb(100 116 139); /* text-slate-500 */
+  margin-bottom: 1rem;
+}
+
+.emptyStateAction {
   display: flex;
-  flex-direction: column;
-  padding: 15px;
-  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.pageWrapper {
+  padding: 1.5rem; /* p-6 */
+  overflow-y: auto;
+  height: 100vh;
   flex: 1;
-  overflow-x: hidden;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .title {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  font-size: 1.875rem; /* 3xl */
+  line-height: 2.25rem;
+  font-weight: 600; /* semibold */
 }
 
-.containerBox {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 15px;
-  overflow-y: auto; 
-  overflow-x: hidden;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+.section {
+  margin-top: 1.5rem;
 }
 
-.box {
-  display: flex;
-  background-color: #ffffff;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  max-width: 35vh;
-  border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-}
-
-.img {
-  object-fit: cover;
-  border-radius: 15px;
-  width: 100%;
-  height: 200px;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 100%;
-}
-
-.button {
-  padding: 15px;
-  border: none;
-  border-radius: 15px;
-  background-color: #d10000dc;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: #9b0000dc;
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }

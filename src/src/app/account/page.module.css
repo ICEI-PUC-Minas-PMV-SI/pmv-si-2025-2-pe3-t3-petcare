@@ -1,0 +1,91 @@
+/* src/app/account/page.module.css */
+
+.pageWrapper {
+  padding: 1.5rem; /* p-6 */
+  overflow-y: auto;
+  height: 100vh;
+  flex: 1;
+}
+
+.pageHeader {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.875rem; /* 3xl */
+  line-height: 2.25rem;
+  font-weight: 600; /* semibold */
+}
+
+.subtitle {
+  font-size: 0.875rem; /* sm */
+  line-height: 1.25rem;
+  color: rgb(100 116 139); /* slate-500 */
+  margin-top: 0.25rem;
+}
+
+.avatarContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.avatarPreview {
+  width: 128px; /* w-32 */
+  height: 128px; /* h-32 */
+  border-radius: 9999px; /* rounded-full */
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}
+
+.fileInput {
+  display: none;
+}
+
+.formContainer {
+  max-width: 600px;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem; /* sm */
+  font-weight: 500; /* medium */
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  color: white;
+  background-color: #16a34a; /* green-600 */
+  cursor: pointer;
+  border: none;
+}
+
+.button:hover {
+  background-color: #15803d; /* green-700 */
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

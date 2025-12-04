@@ -109,21 +109,6 @@ export default function ReservaPageClient() {
     }
   }
 
-  function handleDelete() {
-    if (!reservation) return;
-    const ok = confirm(
-      "Deseja remover esta reserva? Esta ação não pode ser desfeita.",
-    );
-    if (!ok) return;
-    const removed = ReservationRepo.remove(reservation.id);
-    if (removed) {
-      // navegar de volta para a lista
-      router.push("/dashboard");
-    } else {
-      alert("Não foi possível remover a reserva.");
-    }
-  }
-
   function handleChangeStatus(nextStatus: ReservationStatus) {
     if (!reservation) return;
     setChanging(true);
@@ -187,12 +172,6 @@ export default function ReservaPageClient() {
             className="px-3 py-2 rounded-md border text-sm hover:bg-slate-50"
           >
             Voltar
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-3 py-2 rounded-md border text-sm text-rose-600 hover:bg-rose-50"
-          >
-            Excluir
           </button>
         </div>
       </div>

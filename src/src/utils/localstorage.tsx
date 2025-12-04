@@ -145,9 +145,68 @@ export const ReservationRepo = {
     > & {
       status?: ReservationStatus;
     }
-  ): Reservation {
-    const reservations = this.list();
+  ): { success: boolean; reservation?: Reservation; message?: string } {
+    const allReservations = this.list();
+    const newStart = new Date(data.checkinDate);
+    const newEnd = new Date(data.checkoutDate);
 
+    // 1. Verificar se o pet já tem uma reserva no mesmo período
+    const petReservations = allReservations.filter(
+      (r) =>
+        r.petId === data.petId &&
+        [
+          ReservationStatus.PENDING,
+          ReservationStatus.APPROVED,
+          ReservationStatus.CHECKED_IN,
+        ].includes(r.status)
+    );
+
+    const hasPetConflict = petReservations.some((r) => {
+      const existingStart = new Date(r.checkinDate);
+      const existingEnd = new Date(r.checkoutDate);
+      // Checa sobreposição: (StartA <= EndB) and (EndA >= StartB)
+      return newStart <= existingEnd && newEnd >= existingStart;
+    });
+
+    if (hasPetConflict) {
+      return {
+        success: false,
+        message: "Este pet já possui uma reserva para o período selecionado.",
+      };
+    }
+
+    // 2. Verificar se o hotel tem capacidade
+    const hotel = HotelRepo.get(data.hotelId);
+    if (!hotel) {
+      return { success: false, message: "Hotel não encontrado." };
+    }
+
+    const hotelReservations = allReservations.filter(
+      (r) =>
+        r.hotelId === data.hotelId &&
+        [
+          ReservationStatus.APPROVED,
+          ReservationStatus.CHECKED_IN,
+        ].includes(r.status)
+    );
+
+    // Conta as vagas ocupadas para cada dia no período da nova reserva
+    for (let d = newStart; d <= newEnd; d.setDate(d.getDate() + 1)) {
+      const occupiedSlots = hotelReservations.filter((r) => {
+        const existingStart = new Date(r.checkinDate);
+        const existingEnd = new Date(r.checkoutDate);
+        return d >= existingStart && d <= existingEnd;
+      }).length;
+
+      if (occupiedSlots >= hotel.capacity) {
+        return {
+          success: false,
+          message: `O hotel não tem vagas disponíveis para o dia ${d.toLocaleDateString("pt-BR")}.`,
+        };
+      }
+    }
+
+    // Se passou em todas as validações, cria a reserva
     const reservation: Reservation = {
       ...data,
       id: uuid(),
@@ -157,9 +216,9 @@ export const ReservationRepo = {
       createdAt: nowISO(),
     };
 
-    reservations.push(reservation);
-    saveJSON(reservationsKey, reservations);
-    return reservation;
+    allReservations.push(reservation);
+    saveJSON(reservationsKey, allReservations);
+    return { success: true, reservation };
   },
   update(id: UUID, patch: Partial<Reservation>): Reservation | undefined {
     const reservations = this.list();
@@ -437,10 +496,9 @@ export function seedDemoData(): void {
     checkinDate: "2025-12-01",
     checkoutDate: "2025-12-05",
     hasUpdates: false,
+    status: ReservationStatus.CHECKED_IN,
     notes: "Max precisa de medicação às 8h e 20h.",
   });
-
-  ReservationRepo.changeStatus(res1.id, ReservationStatus.CHECKED_IN);
 
   const res2 = ReservationRepo.create({
     petId: luna.id,

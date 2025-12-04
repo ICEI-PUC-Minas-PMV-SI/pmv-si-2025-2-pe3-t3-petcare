@@ -20,6 +20,7 @@ export interface User {
   phone?: string | null;
   role: UserRole;
   password: string;
+  avatarUrl?: string;
   createdAt: string;
   updatedAt?: string | null;
 }

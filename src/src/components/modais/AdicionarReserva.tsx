@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-
+import { ConfirmationModal } from "./ConfirmationModal"; // Importar o novo modal
 import { ReservationRepo, PetRepo } from "utils/localstorage";
 
 interface AdicionarReservaDialogProps {
@@ -28,6 +28,7 @@ export function AdicionarReservaDialog({
   onSaved,
 }: AdicionarReservaDialogProps) {
   const [open, setOpen] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false); // Estado para o modal de confirmação
   const [pets, setPets] = useState<{ id: string; name: string }[]>([]);
   const [petId, setPetId] = useState<string>("");
   const [checkIn, setCheckIn] = useState("");
@@ -76,7 +77,7 @@ export function AdicionarReservaDialog({
 
     try {
       setLoading(true);
-      ReservationRepo.create({
+      const result = ReservationRepo.create({
         userId,
         hotelId,
         petId,
@@ -89,13 +90,19 @@ export function AdicionarReservaDialog({
       });
 
       setLoading(false);
-      setOpen(false);
-      // reset form
-      setCheckIn("");
-      setCheckOut("");
-      setNotes("");
-      setPetId(pets[0]?.id ?? "");
-      if (onSaved) onSaved();
+
+      if (result.success) {
+        setOpen(false); // Fecha o modal de reserva
+        setShowConfirmation(true); // Abre o modal de confirmação
+        // reset form
+        setCheckIn("");
+        setCheckOut("");
+        setNotes("");
+        setPetId(pets[0]?.id ?? "");
+        if (onSaved) onSaved();
+      } else {
+        setError(result.message ?? "Ocorreu um erro desconhecido.");
+      }
     } catch (err: any) {
       setLoading(false);
       setError(err?.message ?? "Erro ao salvar reserva.");
@@ -103,116 +110,125 @@ export function AdicionarReservaDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className="bg-green-600 text-white hover:bg-green-700 text-xs px-3 py-1 rounded-md border"
-        >
-          {triggerLabel}
-        </button>
-      </DialogTrigger>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            className="bg-green-600 text-white hover:bg-green-700 text-xs px-3 py-1 rounded-md border"
+          >
+            {triggerLabel}
+          </button>
+        </DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Adicionar Reserva</DialogTitle>
-          <DialogDescription>
-            Crie uma reserva associada ao usuário e hotel informados.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Reserva</DialogTitle>
+            <DialogDescription>
+              Crie uma reserva associada ao usuário e hotel informados.
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="petSelect" className="block text-sm font-medium">
-              Pet
-            </label>
-            <select
-              id="petSelect"
-              value={petId}
-              onChange={(e) => setPetId(e.target.value)}
-              className="mt-1 w-full border rounded-md p-2"
-            >
-              {pets.length === 0 ? (
-                <option value="">— Nenhum pet cadastrado —</option>
-              ) : (
-                <>
-                  <option value="">— Selecione um pet —</option>
-                  {pets.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </>
-              )}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="checkIn" className="block text-sm font-medium">
-              Data de Check-in
-            </label>
-            <input
-              id="checkIn"
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              required
-              className="mt-1 w-full border rounded-md p-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="checkOut" className="block text-sm font-medium">
-              Data de Check-out
-            </label>
-            <input
-              id="checkOut"
-              type="date"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              required
-              className="mt-1 w-full border rounded-md p-2"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="notes" className="block text-sm font-medium">
-              Observações
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              className="mt-1 w-full border rounded-md p-2"
-            />
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600" role="alert">
-              {error}
-            </p>
-          )}
-
-          <DialogFooter className="flex gap-2 mt-4">
-            <DialogClose asChild>
-              <button
-                type="button"
-                className="px-4 py-1 text-xs rounded-md bg-gray-300 hover:bg-red-400 "
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="petSelect" className="block text-sm font-medium">
+                Pet
+              </label>
+              <select
+                id="petSelect"
+                value={petId}
+                onChange={(e) => setPetId(e.target.value)}
+                className="mt-1 w-full border rounded-md p-2"
               >
-                Cancelar
+                {pets.length === 0 ? (
+                  <option value="">— Nenhum pet cadastrado —</option>
+                ) : (
+                  <>
+                    <option value="">— Selecione um pet —</option>
+                    {pets.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="checkIn" className="block text-sm font-medium">
+                Data de Check-in
+              </label>
+              <input
+                id="checkIn"
+                type="date"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                required
+                className="mt-1 w-full border rounded-md p-2"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="checkOut" className="block text-sm font-medium">
+                Data de Check-out
+              </label>
+              <input
+                id="checkOut"
+                type="date"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                required
+                className="mt-1 w-full border rounded-md p-2"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="notes" className="block text-sm font-medium">
+                Observações
+              </label>
+              <textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+                className="mt-1 w-full border rounded-md p-2"
+              />
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-600" role="alert">
+                {error}
+              </p>
+            )}
+
+            <DialogFooter className="flex gap-2 mt-4">
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  className="px-4 py-1 text-xs rounded-md bg-gray-300 hover:bg-red-400 "
+                >
+                  Cancelar
+                </button>
+              </DialogClose>
+              <button
+                type="submit"
+                disabled={loading || pets.length === 0}
+                className="px-4 py-1 text-xs rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+              >
+                {loading ? "Salvando..." : "Salvar"}
               </button>
-            </DialogClose>
-            <button
-              type="submit"
-              disabled={loading || pets.length === 0}
-              className="px-4 py-1 text-xs rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
-            >
-              {loading ? "Salvando..." : "Salvar"}
-            </button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        title="Reserva Realizada com Sucesso!"
+        message="Sua solicitação de reserva foi enviada para o hotel. Você pode acompanhar o status na sua página inicial."
+      />
+    </>
   );
 }

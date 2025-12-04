@@ -16,12 +16,14 @@ interface HotelRegisterProps {
   att: boolean;
   setAtt: Dispatch<SetStateAction<boolean>>;
   edit: string;
+  triggerLabel?: string;
 }
 
 export default function PetsRegister({
   att,
   setAtt,
   edit,
+  triggerLabel,
 }: HotelRegisterProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState<string>("");
@@ -100,7 +102,9 @@ export default function PetsRegister({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {edit.length > 0 ? (
+        {triggerLabel ? (
+          <button className="card-button">{triggerLabel}</button>
+        ) : edit.length > 0 ? (
           <button className={styles.button} onClick={editButtonClick}>
             Editar
           </button>

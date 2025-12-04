@@ -2,14 +2,6 @@
 
 import React from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   ReservationRepo,
   PetRepo,
   HotelRepo,
@@ -18,6 +10,8 @@ import {
 import { Hotel, Reservation, ReservationStatus, User } from "utils/models";
 import { useRouter } from "next/navigation";
 import { AdicionarReservaDialog } from "@/components/modais/AdicionarReserva";
+import { ConfirmationModal } from "@/components/modais/ConfirmationModal";
+import styles from "./page.module.css";
 
 /** Mapeamento de status para rótulos e classes de badge */
 const STATUS_META: Record<ReservationStatus, { label: string; badge: string }> =
@@ -43,6 +37,8 @@ export default function Dashboard() {
   const [filterStatus, setFilterStatus] = React.useState<
     ReservationStatus | "ALL"
   >("ALL");
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [reservationToFinalize, setReservationToFinalize] = React.useState<string | null>(null);
   const Router = useRouter();
 
   const enrichReservationsFor = React.useCallback(
@@ -92,6 +88,20 @@ export default function Dashboard() {
     updateData();
   }, []);
 
+  function handleFinalizeClick(reservationId: string) {
+    setReservationToFinalize(reservationId);
+    setIsModalOpen(true);
+  }
+
+  function confirmFinalize() {
+    if (reservationToFinalize) {
+      ReservationRepo.changeStatus(reservationToFinalize, ReservationStatus.COMPLETED);
+      updateData();
+    }
+    setReservationToFinalize(null);
+    setIsModalOpen(false);
+  }
+
   // filtros simples (busca por pet/user e filtro por status)
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -127,20 +137,27 @@ export default function Dashboard() {
   }, [reservas]);
 
   return (
-    <div className="p-8">
+    <div className={styles.container}>
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmFinalize}
+        title="Finalizar Reserva"
+        message="Tem certeza que deseja marcar esta reserva como concluída?"
+      />
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div className="flex items-start gap-4">
-          <div className="flex flex-col">
-            <h1 className="text-3xl font-semibold leading-tight">
+      <div className={styles.header}>
+        <div className={styles.headerInfo}>
+          <div>
+            <h1 className={styles.headerTitle}>
               Reservas do seu hotel
             </h1>
-            <p className="text-sm text-slate-500">
+            <p className={styles.headerSubtitle}>
               {hotel ? (
                 <>
-                  <span className="font-medium">{hotel.name}</span>
-                  <span className="mx-2">•</span>
-                  <span className="text-xs text-slate-400">
+                  <span className={styles.hotelName}>{hotel.name}</span>
+                  <span className={styles.hotelAddress}>•</span>
+                  <span className={styles.hotelAddress}>
                     {hotel.address ?? "Endereço não informado"}
                   </span>
                 </>
@@ -151,51 +168,45 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex gap-4 bg-white border rounded-lg px-3 py-2 shadow-sm">
-            <div className="text-sm">
-              <div className="text-xs text-slate-400">Total</div>
-              <div className="font-medium">{totals.total}</div>
+        <div className={styles.headerActions}>
+          <div className={styles.statsContainer}>
+            <div className={styles.statItem}>
+              <div className={styles.statLabel}>Total</div>
+              <div className={styles.statValue}>{totals.total}</div>
             </div>
-            <div className="text-sm">
-              <div className="text-xs text-slate-400">Pendentes</div>
-              <div className="font-medium text-yellow-600">
+            <div className={styles.statItem}>
+              <div className={styles.statLabel}>Pendentes</div>
+              <div className={`${styles.statValue} ${styles.statValuePending}`}>
                 {totals.pending}
               </div>
             </div>
-            <div className="text-sm">
-              <div className="text-xs text-slate-400">Hospedados</div>
-              <div className="font-medium text-indigo-600">
+            <div className={styles.statItem}>
+              <div className={styles.statLabel}>Hospedados</div>
+              <div className={`${styles.statValue} ${styles.statValueCheckedIn}`}>
                 {totals.checkedIn}
               </div>
             </div>
           </div>
-
-          <AdicionarReservaDialog
-            hotelId={hotel?.id ?? ""}
-            userId=""
-            onSaved={updateData}
-          />
         </div>
       </div>
 
       {/* Controls: search + filter */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3 w-full md:w-1/2">
+      <div className={styles.controls}>
+        <div className={styles.searchContainer}>
           <input
             aria-label="Buscar reservas"
             placeholder="Buscar por pet, usuário, notas ou data..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300"
+            className={styles.searchInput}
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className={styles.filterContainer}>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as "ALL")}
-            className="rounded-md border px-3 py-2 text-sm"
+            className={styles.filterSelect}
           >
             <option value="ALL">Todos os status</option>
             {Object.keys(STATUS_META).map((k) => (
@@ -210,7 +221,7 @@ export default function Dashboard() {
               setQuery("");
               setFilterStatus("ALL");
             }}
-            className="text-sm px-3 py-2 rounded-md border hover:bg-slate-50"
+            className={styles.clearButton}
           >
             Limpar
           </button>
@@ -218,15 +229,15 @@ export default function Dashboard() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border-dashed border-2 border-slate-100 p-12 text-center">
-          <h3 className="text-lg font-semibold mb-2">
+        <div className={styles.emptyState}>
+          <h3 className={styles.emptyStateTitle}>
             Nenhuma reserva encontrada
           </h3>
-          <p className="text-sm text-slate-500 mb-4">
+          <p className={styles.emptyStateText}>
             Tente alterar os filtros ou clique em “Adicionar Reserva” para criar
             a primeira.
           </p>
-          <div className="flex items-center justify-center">
+          <div className={styles.emptyStateAction}>
             <AdicionarReservaDialog
               hotelId={hotel?.id ?? ""}
               userId=""
@@ -235,89 +246,85 @@ export default function Dashboard() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={styles.grid}>
           {filtered.map((r) => {
             const meta = STATUS_META[r.status];
             return (
-              <Card key={r.id} className="pb-0">
-                <CardHeader className="px-5 py-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <CardTitle className="text-lg">
-                        {r.petName}{" "}
-                        <span className="text-sm font-normal text-slate-500">
-                          ({r.petSpecies})
-                        </span>
-                      </CardTitle>
-                      <CardDescription className="text-xs text-slate-500">
-                        Tutor:{" "}
-                        <span className="font-medium text-slate-700">
-                          {r.userName}
-                        </span>
-                      </CardDescription>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${meta.badge}`}
-                      >
-                        {meta.label}
+              <div key={r.id} className="card">
+                <div className="card-header">
+                  <div>
+                    <h3 className="card-title">
+                      {r.petName}{" "}
+                      <span className="species">
+                        ({r.petSpecies})
                       </span>
-                      <span className="text-xs text-slate-400">
-                        {new Date(r.createdAt).toLocaleDateString("pt-BR")}
+                    </h3>
+                    <p className="card-description">
+                      Tutor:
+                      <span className="tutor-name">
+                        {r.userName}
                       </span>
-                    </div>
+                    </p>
                   </div>
-                </CardHeader>
 
-                <CardContent className="px-5 pb-4 pt-1 text-sm text-slate-700">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="card-status-container">
+                    <span className={`card-status-badge ${meta.badge}`}>
+                      {meta.label}
+                    </span>
+                    <span className="card-date">
+                      {new Date(r.createdAt).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="card-content">
+                  <div className="card-checkin-out">
                     <div>
-                      <div className="text-xs text-slate-400">Check-in</div>
-                      <div className="font-medium">{r.checkinDate}</div>
+                      <div className="card-checkin-out-label">Check-in</div>
+                      <div className="card-checkin-out-value">{r.checkinDate}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-400">Check-out</div>
-                      <div className="font-medium">{r.checkoutDate}</div>
+                      <div className="card-checkin-out-label">Check-out</div>
+                      <div className="card-checkin-out-value">{r.checkoutDate}</div>
                     </div>
                   </div>
 
                   {r.notes ? (
-                    <div className="text-sm text-slate-600 border-t pt-3">
-                      <div className="text-xs text-slate-400">Observações</div>
-                      <div className="mt-1">{r.notes}</div>
+                    <div className="card-notes">
+                      <div className="card-notes-label">Observações</div>
+                      <div className="card-notes-text">{r.notes}</div>
                     </div>
                   ) : (
-                    <div className="text-sm text-slate-400 border-t pt-3">
+                    <div className="card-notes-empty">
                       Sem observações.
                     </div>
                   )}
-                </CardContent>
+                </div>
 
-                <CardFooter className="px-5 py-3 bg-slate-50 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
+                <div className="card-footer card-footer-between">
+                  <div className="card-id">
                     ID: {r.id.slice(0, 6)}...
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="card-actions">
+                    {r.status === ReservationStatus.CHECKED_IN && (
+                      <button
+                        className="card-button"
+                        onClick={() => handleFinalizeClick(r.id)}
+                      >
+                        Finalizar
+                      </button>
+                    )}
                     <button
-                      className="text-xs px-3 py-1 rounded-md border hover:bg-white/50"
-                      onClick={() =>
-                        Router.push(`dashboard/reserva/${r.id}/view`)
-                      }
-                    >
-                      Ver
-                    </button>
-                    <button
-                      className="text-xs px-3 py-1 rounded-md border hover:bg-white/50"
+                      className="card-button"
                       onClick={() =>
                         Router.push(`dashboard/reserva/${r.id}/edit`)
                       }
                     >
-                      Editar
+                      Ver
                     </button>
                   </div>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>
