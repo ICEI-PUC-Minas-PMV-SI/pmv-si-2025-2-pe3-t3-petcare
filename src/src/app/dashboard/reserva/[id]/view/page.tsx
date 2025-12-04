@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
+import ReactPlayer from 'react-player';
 import {
   Card,
   CardContent,
@@ -27,14 +28,14 @@ import {
 
 /** Meta visual para status */
 const STATUS_META: Record<ReservationStatus, { label: string; badge: string }> =
-{
-  PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
-  APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
-  REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
-  CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
-  COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
-  CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
-};
+  {
+    PENDING: { label: "Pendente", badge: "bg-yellow-100 text-yellow-800" },
+    APPROVED: { label: "Aprovada", badge: "bg-green-100 text-green-800" },
+    REJECTED: { label: "Rejeitada", badge: "bg-red-100 text-red-800" },
+    CHECKED_IN: { label: "Hospedado", badge: "bg-indigo-100 text-indigo-800" },
+    COMPLETED: { label: "Concluída", badge: "bg-slate-100 text-slate-800" },
+    CANCELLED: { label: "Cancelada", badge: "bg-rose-100 text-rose-800" },
+  };
 
 export default function ReservaPageViewOnly() {
   const params = useParams() as { id?: string };
@@ -43,7 +44,7 @@ export default function ReservaPageViewOnly() {
 
   const [loading, setLoading] = React.useState(true);
   const [reservation, setReservation] = React.useState<Reservation | null>(
-    null,
+    null
   );
   const [petName, setPetName] = React.useState<string>("—");
   const [tutorName, setTutorName] = React.useState<string>("—");
@@ -244,13 +245,13 @@ export default function ReservaPageViewOnly() {
                 <p className="text-sm text-slate-700">{update.text}</p>
                 {update.videoUrl && (
                   <div className="mt-2">
-                    <video
+                    <ReactPlayer
+                      src={update.videoUrl}
                       controls
                       className="w-full max-h-64 object-cover rounded-md"
-                    >
-                      <source src={update.videoUrl} type="video/mp4" />
-                      Seu navegador não suporta a tag de vídeo.
-                    </video>
+                      width="%100"
+                      height="500px"
+                    />
                   </div>
                 )}
                 <p className="text-xs text-slate-400 mt-2">
