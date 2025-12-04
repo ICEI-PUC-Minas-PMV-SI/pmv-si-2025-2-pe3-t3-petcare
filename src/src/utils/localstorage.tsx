@@ -181,6 +181,10 @@ export const ReservationRepo = {
       return { success: false, message: "Hotel não encontrado." };
     }
 
+    if (hotel.capacity === null || hotel.capacity === undefined) {
+      return { success: false, message: "Capacidade do hotel não definida." };
+    }
+
     const hotelReservations = allReservations.filter(
       (r) =>
         r.hotelId === data.hotelId &&
@@ -487,7 +491,7 @@ export function seedDemoData(): void {
   });
 
   // --- 4. RESERVATIONS ---
-  const res1 = ReservationRepo.create({
+  const res1Result = ReservationRepo.create({
     petId: max.id,
     userId: ana.id,
     hotelId: hotel1.id,
@@ -500,7 +504,13 @@ export function seedDemoData(): void {
     notes: "Max precisa de medicação às 8h e 20h.",
   });
 
-  const res2 = ReservationRepo.create({
+  if (!res1Result.success || !res1Result.reservation) {
+    console.error("Failed to create res1 in seedDemoData");
+    return;
+  }
+  const res1 = res1Result.reservation;
+
+  const res2Result = ReservationRepo.create({
     petId: luna.id,
     userId: joao.id,
     hotelId: hotel2.id,
@@ -513,7 +523,13 @@ export function seedDemoData(): void {
     status: ReservationStatus.COMPLETED,
   });
 
-  const res3 = ReservationRepo.create({
+  if (!res2Result.success || !res2Result.reservation) {
+    console.error("Failed to create res2 in seedDemoData");
+    return;
+  }
+  const res2 = res2Result.reservation;
+
+  const res3Result = ReservationRepo.create({
     petId: toby.id,
     userId: carlos.id,
     hotelId: hotel1.id,
@@ -525,6 +541,12 @@ export function seedDemoData(): void {
     hasUpdates: false,
     status: ReservationStatus.PENDING,
   });
+
+  if (!res3Result.success || !res3Result.reservation) {
+    console.error("Failed to create res3 in seedDemoData");
+    return;
+  }
+  const res3 = res3Result.reservation;
 
   // --- 5. STAY UPDATES ---
   StayUpdateRepo.create({

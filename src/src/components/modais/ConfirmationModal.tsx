@@ -12,7 +12,7 @@ import {
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   title: string;
   message: string;
 }
@@ -27,7 +27,9 @@ export function ConfirmationModal({
   if (!isOpen) return null;
 
   const handleConfirm = () => {
-    onConfirm();
+    if (onConfirm) {
+      onConfirm();
+    }
     onClose();
   };
 
@@ -39,12 +41,20 @@ export function ConfirmationModal({
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <button className="card-button-secondary" onClick={onClose}>
-            Cancelar
-          </button>
-          <button className="card-button" onClick={handleConfirm}>
-            Confirmar
-          </button>
+          {onConfirm ? (
+            <>
+              <button className="card-button-secondary" onClick={onClose}>
+                Cancelar
+              </button>
+              <button className="card-button" onClick={handleConfirm}>
+                Confirmar
+              </button>
+            </>
+          ) : (
+            <button className="card-button" onClick={onClose}>
+              OK
+            </button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

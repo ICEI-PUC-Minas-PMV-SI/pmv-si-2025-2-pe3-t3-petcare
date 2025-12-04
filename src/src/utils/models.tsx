@@ -63,6 +63,7 @@ export interface Reservation {
   hasUpdates: boolean;
   notes?: string | null;
   rejectionReason?: string | null;
+  isRated?: boolean;
   createdAt: string;
   updatedAt?: string | null;
 }
