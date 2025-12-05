@@ -16,4 +16,4 @@ Material de apoio para esta etapa:
 
 [Relatório_de_Testes_com_Usuário_exemplo.docx](https://github.com/user-attachments/files/16501459/Relatorio_de_Testes_com_Usuario_exemplo.docx)
 
-
+[Relatório de Teste – Lucas Eduardo Silva Couto](docs/testes/Relatorio_Teste_Usuario_Lucas_Eduardo_Silva_Couto_PetCare.docx)

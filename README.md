@@ -6,7 +6,7 @@
 
 `SEMESTRE: 3º`
 
-Descrever resumidamente, em um ou dois parágrafos, o projeto que está sendo desenvolvido.
+O projeto PetCare consiste no desenvolvimento de uma plataforma web destinada a facilitar a interação entre tutores de animais e petshops que provem hospedagem para pets. A aplicação permite o cadastro de usuários, pets e estabelecimentos, além da realização, acompanhamento e avaliação de reservas, oferecendo um ambiente organizado para ambas as partes. O sistema funciona inteiramente no navegador, utilizando localStorage para simular um banco de dados e fornecendo uma experiência completa de gestão de estadias, comunicação durante a hospedagem e controle administrativo para os hotéis.
 
 ## Integrantes
 
@@ -15,7 +15,7 @@ Descrever resumidamente, em um ou dois parágrafos, o projeto que está sendo de
 * Nome completo do aluno 3
 * Nome completo do aluno 4
 * Nome completo do aluno 5
-* Nome completo do aluno 6
+* Lucas Eduardo Silva Couto
 
 ## Orientador
 
