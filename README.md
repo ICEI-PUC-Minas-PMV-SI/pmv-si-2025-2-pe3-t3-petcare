@@ -6,7 +6,7 @@
 
 `SEMESTRE: 3º`
 
-O projeto PetCare consiste no desenvolvimento de uma plataforma web destinada a facilitar a interação entre tutores de animais e petshops que provem hospedagem para pets. A aplicação permite o cadastro de usuários, pets e estabelecimentos, além da realização, acompanhamento e avaliação de reservas, oferecendo um ambiente organizado para ambas as partes. O sistema funciona inteiramente no navegador, utilizando localStorage para simular um banco de dados e fornecendo uma experiência completa de gestão de estadias, comunicação durante a hospedagem e controle administrativo para os hotéis.
+O Projeto tem como objetivo desenvolver uma plataforma digital para conectar tutores de animais a hotéis especializados. A plataforma, por meio de um aplicativo, permitirá que tutores tenham maior transparência sobre os cuidados de seu pet. Para os tutores, o aplicativo incluirá uma ferramenta de agendamento intuitiva, além de permitir o envio de fotos e atualizações dos pets durante a estadia. A ideia é usar a tecnologia para fortalecer a confiança e a fidelização dos clientes, criando uma experiência mais tranquila e satisfatória para todos. 
 
 ## Integrantes
 
@@ -19,7 +19,7 @@ O projeto PetCare consiste no desenvolvimento de uma plataforma web destinada a 
 
 ## Orientador
 
-* Nome completo do professor 
+* Maria Inês Lage de Paula
 
 # Planejamento
 
