@@ -366,6 +366,15 @@ export function seedDemoData(): void {
 
   // --- 1. USERS ---
 
+  // Admin
+  const admin = UserRepo.create({
+    name: "Administrador",
+    email: "adm@e.com",
+    phone: "31999990000",
+    role: "admin",
+    password: "123",
+  });
+
   // Hotel Users
   const hotelUser1 = UserRepo.create({
     name: "Hotel PetCare BH",
