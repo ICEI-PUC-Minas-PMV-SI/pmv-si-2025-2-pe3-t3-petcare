@@ -1,3 +1,6 @@
 # 6. Apresentação do Projeto
 
-Disponibilizar o arquivo da apresentação final do projeto.
+[Slide](docs/apresentacao/Apresentaçao_PetCare.pptx)
+
+
+[Video](docs/apresentacao/ApresentaçãoPetCare.mp4)
